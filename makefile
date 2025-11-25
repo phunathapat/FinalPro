@@ -1,10 +1,10 @@
 DEPS = mmabelzz
 
-compile : main.cpp
+mabelz : main.cpp
 	clear 
 	g++ main.cpp -o $(DEPS)
     
-run : $(DEPS)
+narak : $(DEPS)
 	./$(DEPS)
 
 clean : $(DEPS)
