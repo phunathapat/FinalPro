@@ -2,141 +2,132 @@
 #define RECYCLESYSTEM_H
 
 #include <iostream>
-#include <limits> 
-#include "WasteQueue.h"
+#include <limits>
+#include <algorithm> 
+#include "WasteList.h"
 
 using namespace std;
 
 class RecycleSystem {
 private:
-    WasteQueue* generalQ;
-    WasteQueue* plasticQ;
-    WasteQueue* glassQ;
-    WasteQueue* paperQ;
+    WasteList* generalBin; 
+    WasteList* plasticBin; 
+    WasteList* glassBin;   
+    WasteList* paperBin;   
+
+    string toLower(string str) {
+        string lowerStr = str;
+        transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+        return lowerStr;
+    }
 
 public:
     RecycleSystem() {
-        generalQ = new WasteQueue("General Waste");
-        plasticQ = new WasteQueue("Plastic");
-        glassQ   = new WasteQueue("Glass");
-        paperQ   = new WasteQueue("Paper");
+        generalBin = new WasteList("General Waste (Stack)", true);
+        
+        plasticBin = new WasteList("Plastic (Queue)", false);
+        glassBin   = new WasteList("Glass (Queue)", false);
+        paperBin   = new WasteList("Paper (Queue)", false);
     }
 
     ~RecycleSystem() {
-        delete generalQ;
-        delete plasticQ;
-        delete glassQ;
-        delete paperQ;
+        delete generalBin; delete plasticBin; delete glassBin; delete paperBin;
         cout << "[System] Recycle System Shutdown Complete." << endl;
     }
 
     void run() {
         int choice;
         do {
-            cout << "\n============================" << endl;
-            cout << "    RECYCLE CENTER SYSTEM    " << endl;
-            cout << "============================" << endl;
-            cout << "1. Add Waste (Separation)" << endl;
-            cout << "2. Print Queue" << endl;
-            cout << "3. Process (Dequeue)" << endl;
-            cout << "0. Exit" << endl;
-            cout << "Select: ";
+            cout << "\n========================================" << endl;
+            cout << "    SMART RECYCLE CENTER (V.2.0)    " << endl;
+            cout << "========================================" << endl;
+            cout << " [1] Add Waste (Auto-Detect)" << endl;
+            cout << " [2] View Bins" << endl;
+            cout << " [3] Process Waste (Recycle/Dispose)" << endl;
+            cout << " [4] Sort Items by Weight" << endl;
+            cout << " [0] Exit" << endl;
+            cout << "----------------------------------------" << endl;
+            cout << "Select > ";
             
             if (!(cin >> choice)) {
-                cout << ">>> Error: Please enter a NUMBER." << endl;
-                cin.clear(); 
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-                choice = -1; 
-                continue;
+                cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                choice = -1; continue;
             }
 
             switch(choice) {
-                case 1: addWasteUI(); break;
-                case 2: printQueueUI(); break;
+                case 1: autoDetectWasteUI(); break;
+                case 2: viewBinsUI(); break;
                 case 3: processWasteUI(); break;
+                case 4: sortWasteUI(); break;
                 case 0: break;
                 default: cout << "Invalid choice!" << endl;
             }
         } while (choice != 0);
     }
 
-    void addWasteUI() {
-        int type;
+    void autoDetectWasteUI() {
         string name;
         double weight;
 
-        cout << "\n[Step 1] Select Type:" << endl;
-        cout << "1.General | 2.Plastic | 3.Glass | 4.Paper : ";
-        while(!(cin >> type)) { 
-            cout << "Invalid! Enter number 1-4: ";
-            cin.clear(); cin.ignore(1000, '\n');
-        }
-
-        cout << "[Step 2] Enter Waste Name: ";
+        cout << "\n--- Smart Separation ---" << endl;
+        cout << "Enter Item Name (e.g., Coke Can, Water Bottle): ";
         getline(cin >> ws, name); 
 
-        cout << "[Step 3] Enter Weight (kg): ";
-        if (!(cin >> weight)) { 
-            cout << ">>> Error: Invalid weight! Defaulting to 0." << endl;
-            cin.clear(); cin.ignore(1000, '\n');
-            weight = 0;
-        }
+        cout << "Enter Weight (kg): ";
+        if (!(cin >> weight)) { weight = 0; cin.clear(); cin.ignore(1000, '\n'); }
 
-        switch (type) {
-            case 1: generalQ->enqueue("General", name, weight); break;
-            case 2: plasticQ->enqueue("Plastic", name, weight); break;
-            case 3: glassQ->enqueue("Glass", name, weight); break;
-            case 4: paperQ->enqueue("Paper", name, weight); break;
-            default: cout << "Invalid Type! Cancelled." << endl;
+        string lowerName = toLower(name);
+        
+        if (lowerName.find("bottle") != string::npos || lowerName.find("cup") != string::npos || lowerName.find("straw") != string::npos || lowerName.find("plastic") != string::npos) {
+            plasticBin->addWaste("Plastic", name, weight);
+        }
+        else if (lowerName.find("glass") != string::npos || lowerName.find("jar") != string::npos || lowerName.find("wine") != string::npos) {
+            glassBin->addWaste("Glass", name, weight);
+        }
+        else if (lowerName.find("paper") != string::npos || lowerName.find("box") != string::npos || lowerName.find("book") != string::npos || lowerName.find("news") != string::npos || lowerName.find("novel") != string::npos)|| lowerName.find("magazine") != string::npos {
+            paperBin->addWaste("Paper", name, weight);
+        }
+        else {
+            cout << ">> System: Unknown Type -> Routing to General Waste (Stack)." << endl;
+            generalBin->addWaste("General", name, weight);
         }
     }
 
-    void printQueueUI() {
-        int type;
-        cout << "\n-----------------------------------" << endl;
-        cout << "View Queue Option:" << endl;
-        cout << "1. General Waste" << endl;
-        cout << "2. Plastic" << endl;
-        cout << "3. Glass" << endl;
-        cout << "4. Paper" << endl;
-        cout << "5. [SHOW ALL QUEUES]" << endl; 
-        cout << "Select (1-5): ";
+    void viewBinsUI() {
+        int t;
+        cout << "\nSelect Bin: 1.General 2.Plastic 3.Glass 4.Paper 5.All : ";
+        if (!(cin >> t)) { cin.clear(); cin.ignore(1000, '\n'); return; }
         
-        if (!(cin >> type)) { 
-            cin.clear(); cin.ignore(1000, '\n'); 
-            cout << "Invalid Input" << endl; return;
-        }
-
-        switch (type) {
-            case 1: generalQ->display(); break;
-            case 2: plasticQ->display(); break;
-            case 3: glassQ->display(); break;
-            case 4: paperQ->display(); break;
-            case 5: 
-                cout << "\n>>> DISPLAYING ALL CATEGORIES <<<" << endl;
-                generalQ->display();
-                plasticQ->display();
-                glassQ->display();
-                paperQ->display();
-                break;
-            default: cout << "Invalid Selection" << endl;
+        if(t==1) generalBin->display();
+        else if(t==2) plasticBin->display();
+        else if(t==3) glassBin->display();
+        else if(t==4) paperBin->display();
+        else if(t==5) {
+            generalBin->display(); plasticBin->display();
+            glassBin->display(); paperBin->display();
         }
     }
 
     void processWasteUI() {
-        int type;
-        cout << "\nProcess Queue: 1.General | 2.Plastic | 3.Glass | 4.Paper : ";
-        if (!(cin >> type)) {
-            cin.clear(); cin.ignore(1000, '\n'); 
-            cout << "Invalid Input" << endl; return;
-        }
-        switch (type) {
-            case 1: generalQ->dequeue(); break;
-            case 2: plasticQ->dequeue(); break;
-            case 3: glassQ->dequeue(); break;
-            case 4: paperQ->dequeue(); break;
-            default: cout << "Invalid Selection" << endl;
-        }
+        int t;
+        cout << "\nProcess Bin: 1.General 2.Plastic 3.Glass 4.Paper : ";
+        if (!(cin >> t)) { cin.clear(); cin.ignore(1000, '\n'); return; }
+
+        if(t==1) generalBin->processWaste();
+        else if(t==2) plasticBin->processWaste();
+        else if(t==3) glassBin->processWaste();
+        else if(t==4) paperBin->processWaste();
+    }
+
+    void sortWasteUI() {
+        int t;
+        cout << "\nSort Bin by Weight: 1.General 2.Plastic 3.Glass 4.Paper : ";
+        if (!(cin >> t)) { cin.clear(); cin.ignore(1000, '\n'); return; }
+
+        if(t==1) generalBin->sortByWeight();
+        else if(t==2) plasticBin->sortByWeight();
+        else if(t==3) glassBin->sortByWeight();
+        else if(t==4) paperBin->sortByWeight();
     }
 };
 

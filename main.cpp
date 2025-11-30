@@ -1,10 +1,13 @@
 #include <iostream>
-#include "RecycleSystem.h" 
+#include <iomanip>
+#include "RecycleSystem.h"
 
 using namespace std;
 
 int main() {
+    cout << fixed << setprecision(2);
     RecycleSystem app;
     app.run();
+    
     return 0;
 }

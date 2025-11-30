@@ -14,7 +14,6 @@ private:
 public:
     WasteNode* next;
 
-    // Constructor 
     WasteNode(string type, string name, double w) {
         wasteType = type;
         wasteName = name;
@@ -22,12 +21,15 @@ public:
         next = nullptr;
     }
 
-    // Destructor
     ~WasteNode() { }
 
     string getType()   { return wasteType; }
     string getName()   { return wasteName; }
     double getWeight() { return weight; }
+
+    void setType(string t)   { wasteType = t; }
+    void setName(string n)   { wasteName = n; }
+    void setWeight(double w) { weight = w; }
 };
 
 #endif
