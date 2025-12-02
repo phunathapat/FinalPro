@@ -84,7 +84,7 @@ public:
         else if (lowerName.find("glass") != string::npos || lowerName.find("jar") != string::npos || lowerName.find("wine") != string::npos) {
             glassBin->addWaste("Glass", name, weight);
         }
-        else if (lowerName.find("paper") != string::npos || lowerName.find("box") != string::npos || lowerName.find("book") != string::npos || lowerName.find("news") != string::npos || lowerName.find("novel") != string::npos)|| lowerName.find("magazine") != string::npos {
+        else if (lowerName.find("paper") != string::npos || lowerName.find("box") != string::npos || lowerName.find("book") != string::npos || lowerName.find("news") != string::npos || lowerName.find("novel") != string::npos|| lowerName.find("magazine") != string::npos) {
             paperBin->addWaste("Paper", name, weight);
         }
         else {
