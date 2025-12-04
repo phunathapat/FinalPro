@@ -16,14 +16,14 @@ private:
 
 public:
     WasteList(string name, bool stackMode = false) {
-        head = nullptr;
-        tail = nullptr;
+        head = NULL;
+        tail = NULL;
         categoryName = name;
         isStackMode = stackMode;
     }
 
     ~WasteList() {
-        while (head != nullptr) {
+        while (head != NULL) {
             WasteNode* temp = head;
             head = head->next;
             delete temp;
@@ -33,13 +33,13 @@ public:
     void addWaste(string type, string name, double w) {
         WasteNode* newNode = new WasteNode(type, name, w);
 
-        if (isStackMode) {
+        if (isStackMode) {//Stack
             newNode->next = head;
             head = newNode;
-            if (tail == nullptr) tail = newNode; 
+            if (tail == NULL) tail = newNode; 
             cout << ">> [Stack Push] Threw " << name << " on TOP of " << categoryName << " bin." << endl;
-        } else {
-            if (head == nullptr) {
+        } else {//Queue
+            if (head == NULL) {
                 head = tail = newNode;
             } else {
                 tail->next = newNode;
@@ -50,7 +50,7 @@ public:
     }
 
     void processWaste() {
-        if (head == nullptr) {
+        if (head == NULL) {
             cout << ">> [" << categoryName << "] is empty." << endl;
             return;
         }
@@ -60,14 +60,14 @@ public:
         cout << "Item: " << temp->getName() << " | Weight: " << temp->getWeight() << " kg -> [PROCESSED]" << endl;
 
         head = head->next;
-        if (head == nullptr) tail = nullptr;
+        if (head == NULL) tail = NULL;
         delete temp;
 
         display();
     }
 
     void sortByWeight() {
-        if (head == nullptr || head->next == nullptr) {
+        if (head == NULL || head->next == NULL) {
             cout << ">> Not enough items to sort." << endl;
             return;
         }
@@ -76,7 +76,7 @@ public:
         do {
             swapped = false;
             WasteNode* current = head;
-            while (current->next != nullptr) {
+            while (current->next != NULL) {
                 if (current->getWeight() < current->next->getWeight()) {
                     string tType = current->getType();
                     string tName = current->getName();
@@ -105,7 +105,7 @@ public:
         cout << " | Mode: " << setw(34) << (isStackMode ? "STACK (Top-Down)" : "QUEUE (First-In)") << " |" << endl;
         cout << " |------------------------------------------|" << endl;
         
-        if (head == nullptr) {
+        if (head == NULL) {
             cout << " |              ( Empty )                   |" << endl;
             cout << " '------------------------------------------'" << endl;
             return;
@@ -117,7 +117,7 @@ public:
         
         cout << " | " << left << setw(4) << "No." << setw(20) << "Item Name" << setw(13) << "Weight (kg)" << "|" << endl;
         cout << " |------------------------------------------|" << endl;
-        while (current != nullptr) {
+        while (current != NULL) {
             totalW += current->getWeight();
             cout << " | " << left << setw(4) << i++ 
                  << setw(20) << current->getName() 

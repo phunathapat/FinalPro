@@ -18,7 +18,7 @@ public:
         wasteType = type;
         wasteName = name;
         weight = w;
-        next = nullptr;
+        next = NULL;
     }
 
     ~WasteNode() { }
@@ -30,6 +30,5 @@ public:
     void setType(string t)   { wasteType = t; }
     void setName(string n)   { wasteName = n; }
     void setWeight(double w) { weight = w; }
-};
-
+}; 
 #endif
